@@ -1,4 +1,4 @@
-import WorldMap from "@/components/world-map"
+import WorldMap from "@/components/world-map";
 
 export default function Page() {
   return (
