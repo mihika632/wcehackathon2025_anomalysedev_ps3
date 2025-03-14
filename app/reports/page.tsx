@@ -8,6 +8,10 @@ import {
 } from "recharts";
 import siteIds from "@/public/assets/site_ids.json";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
+
 
 interface Site {
   id: string;
@@ -59,6 +63,21 @@ export default function ReportsPage() {
 
     fetchData();
   }, [selectedSite, startDate, endDate]);
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text("Anomaly Report", 14, 15);
+    doc.text(`Site: ${selectedSite}`, 14, 25);
+    doc.text(`Date Range: ${startDate} - ${endDate}`, 14, 35);
+
+    autoTable(doc, {
+      startY: 45,
+      head: [["Timestamp", "PM10 (µg/m³)", "PM2.5 (µg/m³)"]],
+      body: data.map((entry) => [entry.dt_time, entry.pm10cnc, entry.pm2_5cnc]),
+    });
+
+    doc.save("Anomaly_Report.pdf");
+  };
 
   // Classification Functions
   const classifyPM25 = (value: number) => {
@@ -142,6 +161,12 @@ export default function ReportsPage() {
         </div>
       </div>
 
+      <button
+        onClick={generatePDF}
+        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      >
+        Generate PDF
+      </button>
       {/* Pie Charts */}
       <div className="grid grid-cols-2 gap-4">
         <Card>
